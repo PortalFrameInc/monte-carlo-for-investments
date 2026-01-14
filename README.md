@@ -2,12 +2,58 @@
 
 Fork of the [monte-carlo-for-investments](https://github.com/kconstable/monte-carlo-for-investments) project by kconstable, whose initial goal was to run simulations on other assets, however I made some additions to better suit my needs.
 
-# Description
+## Description
 
 In this project, I use monte-carlo simulations to select the optimal portfolio weights in a basket of securities that yields the highest risk-adjusted return.
 There are two key classes: **Security** and **Portfolio**. Securities are individual assets for which we can gather historic prices using the [Alphavantage](https://www.alphavantage.co/) API. Portfolios consist of baskets of securities with their associated weights. The appendix contains details on the attributes and methods used in each class
 
 In a monte-carlo simulation, we can infer the most likely return and risk of a basket of securities based on the returns of each asset (mu), risk (sigma), and covariance among securities in the portfolio. We generate random normal returns for each security in the portfolio, which is correlated with the other randomly generated security returns. We can then determine the weighted portfolio return at each time step over a fixed period. This allows us to determine the ending portfolio value. If we generate many of these paths, we can determine the mean portfolio return and risk for a given portfolio.
+
+## Installation
+
+### Python Virtual Environment (Recommended)
+
+It's recommended to use a virtual environment to isolate project dependencies:
+
+```bash
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+```
+
+### Requirements
+
+Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### API Key Setup
+
+This project uses the [Alphavantage](https://www.alphavantage.co/) API to fetch historical security prices. You'll need to:
+
+1. Get a free API key from [Alphavantage](https://www.alphavantage.co/support/#api-key)
+2. Create a `keys` directory in the project root
+3. Save your API key in `keys/alphavantage.txt`
+
+```bash
+mkdir keys
+echo "YOUR_API_KEY" > keys/alphavantage.txt
+```
+
+### Usage
+
+Open and run the Jupyter notebook:
+
+```bash
+jupyter notebook monte_carlo.ipynb
+```
 
 ## Security Prices
 
