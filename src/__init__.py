@@ -29,6 +29,15 @@ from .models import (
     Portfolio,
 )
 
+from .visualization import (
+    plot_security_prices,
+    plot_portfolio_boxplots,
+    plot_portfolio_histograms,
+    plot_portfolio_simulations,
+    plot_portfolio_expected_values,
+    plot_efficient_frontier,
+)
+
 __all__ = [
     # Config
     'RF',
@@ -51,4 +60,11 @@ __all__ = [
     'Option',
     'Future',
     'Portfolio',
+    # Visualization
+    'plot_security_prices',
+    'plot_portfolio_boxplots',
+    'plot_portfolio_histograms',
+    'plot_portfolio_simulations',
+    'plot_portfolio_expected_values',
+    'plot_efficient_frontier',
 ]
