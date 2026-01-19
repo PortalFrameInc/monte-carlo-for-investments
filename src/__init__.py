@@ -43,8 +43,6 @@ from .simulation import (
     create_securities_from_config,
     run_monte_carlo_simulation,
     build_efficient_frontier,
-    create_and_simulate_portfolio,
-    create_and_build_frontier,
 )
 
 __all__ = [
@@ -80,6 +78,4 @@ __all__ = [
     'create_securities_from_config',
     'run_monte_carlo_simulation',
     'build_efficient_frontier',
-    'create_and_simulate_portfolio',
-    'create_and_build_frontier',
 ]
