@@ -167,7 +167,7 @@ def build_efficient_frontier(
     years: int = 10,
     frequency: str = "daily",
     rebalancing: bool = False,
-    show_plot: bool = True,
+    show_plot: bool = False,
     top_n: int = 5,
     verbose: int = 1000,
     seed: Optional[int] = None
