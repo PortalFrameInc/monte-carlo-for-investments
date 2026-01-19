@@ -23,8 +23,9 @@ from .config import (
     DEFAULT_STUDENT_T_DF,
     FREQUENCY_LABELS,
     Colors,
-    get_optimal_n_jobs,
 )
+
+from .utils import get_optimal_n_jobs, get_api_key
 
 from .visualization import (
     plot_security_prices,
@@ -137,12 +138,12 @@ class Security:
         rng = np.random.default_rng(self.seed)
         self.returns = rng.normal(mu, sigma, n)
 
-    def get_price_data(self, key, from_year=None):
+    def get_price_data(self, from_year=None):
         """
-        Récupère les données mensuelles pour un actif (à partir de son symbol).
-        key: clé d'API
+        Récupère les données mensuelles pour un actif (à partir de son symbol) et en utilisant l'api alphavantage
         symbols: GLD (or), SPY (S&P500), LQD (iShares Corp Bond)...
         """
+        key = get_api_key()
         url = f"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={self.identifier}&apikey={key}"
         r = requests.get(url)
         d = r.json()
@@ -251,14 +252,14 @@ class LeveragedEquity(Equity):
                 f"Actif sous-jacent:{self.base_equity.name}\n"
                 f"Facteur de levier:{self.leverage_factor}x")
     
-    def get_price_data(self, key, from_year=None):
+    def get_price_data(self, from_year=None):
         """
         Pour un LeveragedEquity, on copie les données du sous-jacent 
         car le levier est appliqué pendant la simulation.
         """
         # S'assurer que le base_equity a ses données
         if self.base_equity.prices is None:
-            self.base_equity.get_price_data(key, from_year)
+            self.base_equity.get_price_data(from_year)
         
         # Copier les données du sous-jacent (le levier sera appliqué dans run_simulation)
         if self.base_equity.prices is not None:
@@ -635,7 +636,7 @@ class Portfolio:
             return metric * np.sqrt(FREQUENCY_MAP[freq])
         return None
         
-    def get_security_prices(self, yr, key, plot=False, requests_per_min=5):
+    def get_security_prices(self, yr, plot=False, requests_per_min=5):
         """Récupère les prix de chaque titre du portefeuille depuis alphavantage."""
         n_sec = len(self.securities)
         if n_sec == 0:
@@ -645,7 +646,7 @@ class Portfolio:
         throttle = (total_mins / n_sec) * 60
 
         for sec in self.securities:
-            sec.get_price_data(key, yr)
+            sec.get_price_data(yr)
 
             if plot:
                 sec.plot_prices()

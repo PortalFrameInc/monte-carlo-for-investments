@@ -16,8 +16,9 @@ from .config import (
     DEFAULT_STUDENT_T_DF,
     FREQUENCY_LABELS,
     Colors,
-    get_optimal_n_jobs,
 )
+
+from .utils import get_optimal_n_jobs
 
 from .models import (
     Security,
@@ -36,6 +37,14 @@ from .visualization import (
     plot_portfolio_simulations,
     plot_portfolio_expected_values,
     plot_efficient_frontier,
+)
+
+from .simulation import (
+    create_securities_from_config,
+    run_monte_carlo_simulation,
+    build_efficient_frontier,
+    create_and_simulate_portfolio,
+    create_and_build_frontier,
 )
 
 __all__ = [
@@ -67,4 +76,10 @@ __all__ = [
     'plot_portfolio_simulations',
     'plot_portfolio_expected_values',
     'plot_efficient_frontier',
+    # Simulation (orchestration)
+    'create_securities_from_config',
+    'run_monte_carlo_simulation',
+    'build_efficient_frontier',
+    'create_and_simulate_portfolio',
+    'create_and_build_frontier',
 ]

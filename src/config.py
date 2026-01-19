@@ -3,36 +3,6 @@ Ce module contient toutes les constantes globales et fonctions de configuration
 utilisées dans les simulations Monte-Carlo.
 """
 
-import os
-
-
-# =============================================================================
-# CONFIGURATION PARALLÉLISATION
-# =============================================================================
-
-def get_optimal_n_jobs(n_tasks=None):
-    """
-    Détermine le nombre optimal de workers basé sur les ressources CPU.
-    
-    Args:
-        n_tasks: nombre de tâches à exécuter (optionnel)
-        
-    Returns:
-        int: nombre de jobs parallèles optimal
-    """
-    # Nombre de cœurs logiques
-    n_cores = os.cpu_count() or 4
-    
-    # Garder 1 cœur libre pour le système
-    max_workers = max(1, n_cores - 1)
-    
-    # Si peu de tâches, ne pas utiliser plus de workers que de tâches
-    if n_tasks is not None:
-        max_workers = min(max_workers, n_tasks)
-    
-    return max_workers
-
-
 # =============================================================================
 # CONSTANTES GLOBALES
 # =============================================================================
