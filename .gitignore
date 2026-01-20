@@ -1,8 +1,9 @@
 # Your keys folder containing API key
 keys
 
-
-
 # Environments
 venv/
+
+# pycache
+__pycache__/
 
