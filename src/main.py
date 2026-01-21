@@ -118,7 +118,6 @@ def run_simulate(
 
 def run_frontier(
     portfolio: Portfolio,
-    total_weight: int = 100,
     min_weight: int = 0,
     max_weight: int = 100,
     weight_increment: int = 5,
@@ -135,8 +134,7 @@ def run_frontier(
     
     Args:
         portfolio: Instance du portefeuille
-        total_weight: Poids total du portefeuille (100 = long only)
-        min_weight: Poids minimum par titre
+        min_weight: Poids minimum par titre (0 = peut être exclu)
         max_weight: Poids maximum par titre
         weight_increment: Incrément des poids
         num_sims: Nombre de simulations par combinaison
@@ -152,7 +150,6 @@ def run_frontier(
     """
     results = build_efficient_frontier(
         portfolio=portfolio,
-        total_weight=total_weight,
         min_weight=min_weight,
         max_weight=max_weight,
         weight_increment=weight_increment,
@@ -238,7 +235,6 @@ def cmd_frontier(args, config_data: dict):
     
     return run_frontier(
         portfolio=portfolio,
-        total_weight=frontier_config.get('total_weight', 100),
         min_weight=frontier_config.get('min_weight', 0),
         max_weight=frontier_config.get('max_weight', 100),
         weight_increment=frontier_config.get('weight_increment', 5),

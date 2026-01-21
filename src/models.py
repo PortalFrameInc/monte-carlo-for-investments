@@ -897,34 +897,53 @@ class Portfolio:
         self.sortino_ratio = self.calc_sortino_ratio(downside_std)
         self.cvar_ratio = self.calc_cvar_ratio()
 
-    def weight_combinations(self, total_portfolio_wt, min_security_wt, max_security_wt, weight_increment):
-        """Génère toutes les combinaisons de poids possibles pour le portefeuille."""
+    def weight_combinations(self, min_security_wt, max_security_wt, weight_increment):
+        """
+        Génère toutes les combinaisons de poids possibles pour le portefeuille.
+        
+        Les poids générés somment toujours à 100% (long only).
+        
+        Args:
+            min_security_wt: poids minimum par titre (0-100)
+            max_security_wt: poids maximum par titre (0-100)
+            weight_increment: incrément des poids (ex: 5 pour 5%, 10%, 15%...)
+        
+        Returns:
+            Liste de listes de poids (chaque poids en décimal, ex: 0.25 pour 25%)
+        """
         n_securities = len(self.securities)
-        check = n_securities * max_security_wt >= total_portfolio_wt
+        total_weight = 100  # Toujours 100% (long only)
+        
+        # Vérifier que c'est mathématiquement possible
+        if n_securities * max_security_wt < total_weight:
+            print("❌ Le poids max par titre est trop faible pour le nombre de titres. Augmentez max_weight.")
+            return []
+        
+        if n_securities * min_security_wt > total_weight:
+            print("❌ Le poids min par titre est trop élevé pour le nombre de titres. Diminuez min_weight.")
+            return []
 
-        if check:
-            weights = list(range(min_security_wt, max_security_wt + weight_increment, weight_increment))
-            possible_weights = itertools.product(weights, repeat=n_securities - 1)
+        weights = list(range(min_security_wt, max_security_wt + weight_increment, weight_increment))
+        possible_weights = itertools.product(weights, repeat=n_securities - 1)
 
-            sim_weights = []
-            for perm in possible_weights:
-                final = total_portfolio_wt - sum(perm)
-                if final in weights:
-                    wts = perm + (final,)
-                    sim_weights.append([w / 100 for w in wts])
-        else:
-            sim_weights = []
-            print("Le poids max par titre est trop faible pour le nombre de titres. Augmentez le poids max par titre.")
+        sim_weights = []
+        for perm in possible_weights:
+            final = total_weight - sum(perm)
+            if final in weights:
+                wts = perm + (final,)
+                sim_weights.append([w / 100 for w in wts])
+        
         return sim_weights
     
-    def build_efficient_frontier(self, total_portfolio_wt, min_security_wt, max_security_wt, weight_increment, num_sims, years, frequency, rebalancing=False, verbose=0, seed=None, n_jobs=None):
+    def build_efficient_frontier(self, min_security_wt, max_security_wt, weight_increment, num_sims, years, frequency, rebalancing=False, verbose=0, seed=None, n_jobs=None):
         """
         Construit la frontière efficiente en testant toutes les combinaisons de poids.
         
+        Les poids générés somment toujours à 100% (long only).
+        
         Args:
-            total_portfolio_wt: somme totale des pondérations (100 pour long only)
-            min_security_wt: pondération minimale par titre
-            max_security_wt: pondération maximale par titre
+            min_security_wt: pondération minimale par titre (0-100)
+            max_security_wt: pondération maximale par titre (0-100)
             weight_increment: incrément entre les pondérations
             num_sims: nombre de simulations Monte-Carlo par combinaison
             years: nombre d'années de simulation
@@ -934,7 +953,7 @@ class Portfolio:
             seed: graine aléatoire pour la reproductibilité (optionnel)
             n_jobs: nombre de workers parallèles pour les simulations (None = auto-détection)
         """
-        weights = self.weight_combinations(total_portfolio_wt, min_security_wt, max_security_wt, weight_increment)
+        weights = self.weight_combinations(min_security_wt, max_security_wt, weight_increment)
 
         num_eff_frontier_sims = len(weights)
         if num_eff_frontier_sims == 0:

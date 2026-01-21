@@ -11,10 +11,9 @@ simulation:
   frequency: "daily"
 
 frontier:
-  total_weight: 100
-  min_weight: 0
-  max_weight: 100
-  weight_increment: 10
-  num_sims: 50
-  years: 10
-  frequency: "monthly"
+  min_weight: 0         # Poids minimum par titre (0 = peut être exclu)
+  max_weight: 100       # Poids maximum par titre
+  weight_increment: 10  # Incrément des poids (10%)
+  num_sims: 50          # Simulations par combinaison
+  years: 10             # Durée de simulation
+  frequency: "monthly"  # Fréquence

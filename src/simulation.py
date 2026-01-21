@@ -159,7 +159,6 @@ def run_monte_carlo_simulation(
 
 def build_efficient_frontier(
     portfolio: Portfolio,
-    total_weight: int = 100,
     min_weight: int = 0,
     max_weight: int = 100,
     weight_increment: int = 5,
@@ -183,7 +182,6 @@ def build_efficient_frontier(
     
     Args:
         portfolio: le portefeuille de base (avec les titres)
-        total_weight: poids total du portefeuille (100 = long only)
         min_weight: poids minimum par titre (0 = peut être exclu)
         max_weight: poids maximum par titre
         weight_increment: incrément des poids (5 = 5%, 10%, 15%...)
@@ -206,9 +204,8 @@ def build_efficient_frontier(
         - 'num_combinations': nombre de combinaisons testées
         - 'efficient_frontier': données brutes de la frontière
     """
-    # Calculer le nombre de combinaisons
+    # Calculer le nombre de combinaisons (toujours 100% = long only)
     combinations = portfolio.weight_combinations(
-        total_portfolio_wt=total_weight,
         min_security_wt=min_weight,
         max_security_wt=max_weight,
         weight_increment=weight_increment
@@ -229,9 +226,8 @@ def build_efficient_frontier(
         print("❌ Aucune combinaison de poids valide. Ajustez les paramètres.")
         return None
     
-    # Construire la frontière
+    # Construire la frontière (toujours 100% = long only)
     portfolio.build_efficient_frontier(
-        total_portfolio_wt=total_weight,
         min_security_wt=min_weight,
         max_security_wt=max_weight,
         weight_increment=weight_increment,

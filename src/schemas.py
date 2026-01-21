@@ -104,7 +104,6 @@ class SimulationSettings(BaseModel):
 
 class FrontierSettings(BaseModel):
     """Paramètres de la frontière efficiente."""
-    total_weight: int = Field(default=100, ge=1, le=200, description="Poids total du portefeuille")
     min_weight: int = Field(default=0, ge=0, le=100, description="Poids minimum par titre")
     max_weight: int = Field(default=100, ge=1, le=100, description="Poids maximum par titre")
     weight_increment: int = Field(default=5, ge=1, le=50, description="Incrément des poids")
