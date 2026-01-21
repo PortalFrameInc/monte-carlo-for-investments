@@ -5,3 +5,4 @@ plotly
 joblib
 pyyaml
 typer
+pydantic>=2.0

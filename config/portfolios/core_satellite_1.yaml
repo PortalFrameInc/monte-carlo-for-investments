@@ -1,0 +1,20 @@
+securities:
+  - name: "MSCI World ETF"
+    identifier: "URTH"
+    mu: 0.09
+    sigma: 0.14
+    type: "equity"
+
+  - name: "Nasdaq 100 ETF 2x Leveraged"
+    identifier: "QLD"
+    base: "QQQ"
+    leverage: 2
+    type: "leveraged"
+
+portfolio:
+  name: "ETFs Diversifiés"
+  value: 100000
+  weights: [0.85, 0.15]
+
+rebalancing: false
+

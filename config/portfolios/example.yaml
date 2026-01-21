@@ -1,0 +1,27 @@
+# Example portfolio
+securities:
+  - name: "S&P 500 ETF"
+    identifier: "SPY"
+    mu: 0.10 # Rendement annuel attendu (10%)
+    sigma: 0.15 # Volatilité annuelle (15%)
+    type: "equity"
+
+  - name: "MSCI World ETF"
+    identifier: "URTH"
+    mu: 0.09 # Rendement annuel attendu (9%)
+    sigma: 0.14 # Volatilité annuelle (14%)
+    type: "equity"
+
+  - name: "NASDAQ-100 ETF"
+    identifier: "QQQ"
+    mu: 0.12 # Rendement annuel attendu (12%)
+    sigma: 0.20 # Volatilité annuelle (20%)
+    type: "equity"
+
+# Configuration du portefeuille
+portfolio:
+  name: "ETFs Diversifiés"
+  value: 100000
+  weights: [0.35, 0.35, 0.30]
+
+rebalancing: false # Rééquilibrage périodique
