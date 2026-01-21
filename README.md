@@ -47,12 +47,119 @@ mkdir keys
 echo "API_KEY" > keys/alphavantage.txt
 ```
 
-### Utilisation
+## Structure du Projet
 
-Ouvrir et exécuter le notebook Jupyter :
+```
+monte-carlo-for-investments/
+├── config/
+│   ├── base_conf.yaml              # Configuration de base (simulation + frontier)
+│   └── portfolios/
+│       ├── example.yaml            # Exemple de portefeuille
+│       └── core_satellite_1.yaml   # Portefeuille Core-Satellite
+├── src/
+│   ├── __init__.py
+│   ├── cli.py                      # Interface en ligne de commande
+│   ├── config.py                   # Constantes globales
+│   ├── main.py                     # Fonctions métier (create_portfolio, run_simulate, run_frontier)
+│   ├── models.py                   # Classes Security, Equity, LeveragedEquity, Portfolio
+│   ├── schemas.py                  # Validation Pydantic des fichiers YAML
+│   ├── simulation.py               # Logique Monte-Carlo
+│   ├── utils.py                    # Fonctions utilitaires
+│   └── visualization.py            # Graphiques Plotly
+├── keys/
+│   └── alphavantage.txt            # Clé API (non versionnée)
+├── monte_carlo.ipynb               # Notebook de démonstration
+├── requirements.txt
+└── README.md
+```
+
+## Utilisation
+
+### Option 1 : Interface en Ligne de Commande (CLI)
+
+Le CLI permet de lancer des simulations ou construire des frontières efficientes directement depuis le terminal.
+
+#### Commandes disponibles
 
 ```bash
-jupyter notebook monte_carlo.ipynb
+# Afficher l'aide
+python -m src.cli --help
+
+# Simulation Monte-Carlo
+python -m src.cli simulate --portfolio config/portfolios/example.yaml --config config/base_conf.yaml
+
+# Frontière efficiente
+python -m src.cli frontier --portfolio config/portfolios/example.yaml --config config/base_conf.yaml
+
+# Options supplémentaires
+python -m src.cli simulate -p config/portfolios/example.yaml -c config/base_conf.yaml --no-plots --quiet
+python -m src.cli frontier -p config/portfolios/example.yaml -c config/base_conf.yaml --top-n 10
+```
+
+#### Fichiers de Configuration
+
+**Portfolio YAML** (`config/portfolios/example.yaml`) :
+```yaml
+securities:
+  - name: "S&P 500 ETF"
+    identifier: "SPY"
+    mu: 0.10          # Rendement annuel attendu
+    sigma: 0.15       # Volatilité annuelle
+    type: "equity"
+
+  - name: "NASDAQ-100 2x Leveraged"
+    identifier: "QLD"
+    base: "QQQ"       # Titre sous-jacent
+    leverage: 2
+    type: "leveraged"
+
+portfolio:
+  name: "Mon Portefeuille"
+  value: 100000
+  weights: [0.60, 0.40]
+
+rebalancing: false
+```
+
+**Configuration YAML** (`config/base_conf.yaml`) :
+```yaml
+general:
+  rf: 0.04
+  conf_level: 0.95
+  price_start_year: 2013
+
+simulation:
+  simulations: 1000
+  years: 20
+  frequency: "daily"
+
+frontier:
+  total_weight: 100
+  min_weight: 0
+  max_weight: 100
+  weight_increment: 10
+  num_sims: 50
+  years: 10
+  frequency: "monthly"
+```
+
+### Option 2 : Notebook Jupyter
+
+Pour une utilisation interactive avec visualisations :
+
+```bash
+jupyter notebook optimize_invest.ipynb
+```
+
+## Validation des Fichiers YAML
+
+Les fichiers de configuration sont validés automatiquement avec Pydantic. En cas d'erreur, un message clair indique le problème :
+
+```
+Erreur de validation dans config/portfolios/test.yaml:
+  - portfolio -> weights: La somme des poids doit être égale à 1 (actuel: 0.5)
+  - securities -> 0 -> identifier: Field required
+  - ...
 ```
 
 ## Prix des Securities (Actifs)
@@ -131,46 +238,47 @@ Vous pouvez également utiliser cette méthode pour évaluer des portefeuilles a
 
 ## Annexe
 
-#### Attributs de Security
+### Classes de Titres
 
-- name = nom du titre
-- identifier (utilisé pour interroger alphavantage pour les prix)
-- mu (rendement moyen)
-- sigma (écart-type moyen des rendements)
+#### Security (classe de base)
 
-#### Méthodes de Security
+- `name` : nom du titre
+- `identifier` : ticker (utilisé pour interroger Alphavantage)
+- `mu` : rendement moyen annuel
+- `sigma` : volatilité annuelle (écart-type des rendements)
 
-- generate_returns(self.mu, self.sigma, self.n). Cette fonction simule les rendements à partir de la distribution normale basée sur mu et sigma
+#### Equity
 
-#### Attributs de Portfolio
+Titre classique (actions, ETF) avec mu et sigma définis manuellement.
 
-Un portefeuille contient des titres avec des pondérations spécifiques
+#### LeveragedEquity
 
-- name = nom du portefeuille
-- securities = une liste de titres
-- target_weights = une liste de pondérations associées à chaque titre
-- portfolio_value = valeur initiale du portefeuille
-- rf = taux sans risque (format décimal)
-- cov = matrice de covariance des rendements de chaque titre dans le portefeuille
-- simulation_results = un dictionnaire de diverses sorties de la simulation de Monte-Carlo
-- mean_return = rendement moyen du portefeuille. Calculé par la simulation
-- mean_volatility = écart-type moyen des rendements du portefeuille - calculé par la simulation
-- sharpe_ratio = ratio de Sharpe du portefeuille - calculé par la simulation
-- expected_values = valeurs attendues du portefeuille - calculées par la simulation
+Titre à effet de levier basé sur un autre titre. Les rendements sont calculés automatiquement à partir du titre sous-jacent et du facteur de levier.
 
-#### Méthodes de Portfolio
+### Classe Portfolio
 
-- calc_sharpe_ratio() : Calculer le ratio de Sharpe du portefeuille
-- calc_covariance() : Calculer la covariance entre les rendements des titres
-- convert_from_annual(metric,freq,measure) : convertir d'annuel à une autre fréquence (rendement, risque)
-- convert_to_annual(ret,vol,freq,periods) : convertir rendement/risque en annuel depuis une autre fréquence
-- get_security_prices(yr, key, plot=False,requests_per_min=5) : obtenir les prix des titres depuis alpha vantage
-- run_simulation(simulations, years, frequency,robust=False) : exécuter la simulation de Monte-Carlo
-- get_expected_values() : obtenir les valeurs attendues de la simulation
-- weight_combinations(, total_portfolio_wt, min_security_wt, max_security_wt, weight_increment) : obtenir toutes les combinaisons possibles de pondérations de portefeuille
-- build_efficient_frontier(total_portfolio_wt, min_security_wt, max_security_wt, weight_increment, num_sims, years, frequency, verbose=0) : construire la frontière efficiente
-- get_optimal_portfolios(top_n) : obtenir le portefeuille optimal de la frontière efficiente
-- plot_boxplots() : tracer rendement/risque en boîtes à moustaches
-- plot_histograms() : tracer rendement/risque en histogrammes
-- plot_portfolio_simulations() : tracer les résultats de la simulation
-- plot_efficient_frontier() : tracer la frontière efficiente
+Un portefeuille contient des titres avec des pondérations spécifiques.
+
+**Attributs :**
+- `name` : nom du portefeuille
+- `securities` : liste de titres
+- `target_weights` : pondérations associées à chaque titre
+- `portfolio_value` : valeur initiale du portefeuille
+- `rf` : taux sans risque (format décimal)
+- `cov` : matrice de covariance des rendements
+- `simulation_results` : résultats de la simulation Monte-Carlo
+- `mean_return`, `mean_volatility`, `sharpe_ratio` : métriques calculées
+
+**Méthodes principales :**
+- `calc_covariance()` : calculer la matrice de covariance
+- `get_security_prices(yr, plot, requests_per_min)` : récupérer les prix via Alpha Vantage
+- `run_simulation(simulations, years, frequency, rebalancing)` : exécuter la simulation
+- `build_efficient_frontier(...)` : construire la frontière efficiente
+- `get_optimal_portfolios_by_sharpe_ratio(top_n)` : obtenir les meilleurs portefeuilles
+- `plot_portfolio_simulations()`, `plot_efficient_frontier()`, `plot_boxplots()` : visualisations
+
+### Fonctions Métier (src/main.py)
+
+- `create_portfolio(securities, ...)` : créer un portefeuille à partir d'objets Security
+- `run_simulate(portfolio, ...)` : exécuter une simulation Monte-Carlo
+- `run_frontier(portfolio, ...)` : construire la frontière efficiente
